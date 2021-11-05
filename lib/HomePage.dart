@@ -1,4 +1,6 @@
-// ignore_for_file: deprecated_member_use, prefer_const_constructors, unused_import, file_names, unused_field
+// ignore_for_file: deprecated_member_use, prefer_const_constructors, unused_import, file_names, unused_field, dead_code
+
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:bytebank/main.dart';
@@ -19,68 +21,66 @@ class FormularioTransferencia extends StatelessWidget {
       body: Column(
         // ignore: prefer_const_literals_to_create_immutables
         children: <Widget>[
-          Editor(_controladorCampoNumeroConta, 'Numero da Conta', '000'),
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: TextField(
-              controller: _controladorCampoValor,
-              style: TextStyle(
-                fontSize: 24,
-              ),
-              decoration: InputDecoration(
-                icon: Icon(Icons.monetization_on, color: Colors.green),
-                labelText: 'Valor',
-                hintText: '0000',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ),
+          Editor(
+              controlador: _controladorCampoNumeroConta,
+              rotulo: 'Numero da Conta',
+              dica: '0000.0000.0000.0000',
+              icone: Icons.credit_card),
+          Editor(
+              controlador: _controladorCampoValor,
+              rotulo: 'Valor',
+              dica: '20.0000,00',
+              icone: Icons.monetization_on),
           RaisedButton(
             child: Text('Confirmar'),
             color: Colors.green.shade700,
-            onPressed: () {
-              final int? numeroConta =
-                  int.tryParse(_controladorCampoNumeroConta.text);
-              final double? valor =
-                  double.tryParse(_controladorCampoValor.text);
-              if (numeroConta != null && valor != null) {
-                final transferenciaCriada = Transferencia(valor, numeroConta);
-                Scaffold.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('$transferenciaCriada'),
-                  ),
-                );
-              }
-            },
+            onPressed: () => _criaTransferencia(),
           ),
         ],
       ),
     );
   }
+
+  void _criaTransferencia() {
+    final double? numeroConta =
+        double.tryParse(_controladorCampoNumeroConta.text);
+    final int? valor = int.tryParse(_controladorCampoValor.text);
+    if (numeroConta != null && valor != null) {
+      final transferenciaCriada = Transferencia(numeroConta, valor);
+      debugPrint('$transferenciaCriada');
+    }
+  }
 }
 
 class Editor extends StatelessWidget {
-  final TextEditingController _controlador;
-  final String _rotulo;
-  final String _dica;
-  final String _rotuloValor = "Valor";
-  final String _dicaValor = "000";
+  final TextEditingController? controlador;
+  final String? rotulo;
+  final String? dica;
+  final IconData? icone;
 
-  Editor(this._controlador, this._rotulo, this._dica);
+  Editor({
+    @required this.controlador,
+    @required this.rotulo,
+    @required this.dica,
+    @required this.icone,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: TextField(
-        controller: _controlador,
+        controller: controlador,
         style: TextStyle(
           fontSize: 24,
         ),
         decoration: InputDecoration(
-          icon: Icon(Icons.credit_card, color: Colors.green),
-          labelText: _rotulo,
-          hintText: _dica,
+          icon: Icon(
+            icone,
+            color: Colors.green,
+          ),
+          labelText: rotulo,
+          hintText: dica,
         ),
         keyboardType: TextInputType.number,
       ),
